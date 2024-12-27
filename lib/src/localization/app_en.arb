@@ -1,0 +1,6 @@
+{
+  "appTitle": "tes_venteny",
+  "@appTitle": {
+    "description": "The title of the application"
+  }
+}
