@@ -411,12 +411,19 @@ class _FormTodoBottomSheetModalState extends State<_FormTodoBottomSheetModal> {
                     onPressed: () async {
                       final selectedDate = await showDatePicker(
                         context: context,
-                        initialDate: DateTime.now(),
+                        initialDate: _dueDateController.text.toDateTime(),
                         firstDate: DateTime.now(),
                         lastDate: DateTime.now().add(Duration(days: 365)),
                       );
                       if (selectedDate != null) {
-                        _dueDateController.text = selectedDate.formatDateTime();
+                        final current = _dueDateController.text.toDateTime();
+                        _dueDateController.text = DateTime(
+                          selectedDate.year,
+                          selectedDate.month,
+                          selectedDate.day,
+                          current.hour,
+                          current.minute,
+                        ).formatDateTime();
                       }
                     },
                   ),
