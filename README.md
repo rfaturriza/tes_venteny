@@ -8,12 +8,14 @@ A Flutter project designed as a starting point for application development, foll
 
 ## Table of Contents
 
-- [Getting Started](#getting-started)
-- [Project Structure](#project-structure)
-- [Dependencies](#dependencies)
-- [Assets](#assets)
-- [Localization](#localization)
-- [Contributing](#contributing)
+- [tes\_venteny](#tes_venteny)
+  - [Table of Contents](#table-of-contents)
+  - [Getting Started](#getting-started)
+  - [Project Structure](#project-structure)
+  - [Dependencies](#dependencies)
+  - [Assets](#assets)
+  - [Localization](#localization)
+  - [Contributing](#contributing)
 
 ## Getting Started
 
@@ -71,9 +73,13 @@ The project utilizes several packages to enhance development:
 
 - **flutter_bloc**: For state management.
 - **equatable**: To simplify value comparisons.
-- **connectivity_plus**: To monitor network connectivity.
+- **connectivity_plus**, **dart_ping**: To monitor network connectivity.
 - **freezed**: For immutable data classes and union types.
 - **json_serializable**: To handle JSON serialization.
+- **get_it**, **injectable**: For dependency injection.
+- **shared_preferences**, **sqflite**: For local data storage.
+- **dio**: For making HTTP requests.
+- **flutter_local_notifications**: To display local notifications.
 
 For the complete list, refer to the `pubspec.yaml` file.
 
