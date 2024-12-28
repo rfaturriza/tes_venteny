@@ -382,11 +382,18 @@ class _FormTodoBottomSheetModalState extends State<_FormTodoBottomSheetModal> {
             spacing: 20,
             mainAxisSize: MainAxisSize.min,
             children: [
-              TextField(
+              TextFormField(
                 controller: _titleController,
                 decoration: InputDecoration(labelText: 'Title'),
+                autovalidateMode: AutovalidateMode.onUserInteraction,
+                validator: (value) {
+                  if (value == null || value.isEmpty) {
+                    return 'Please enter some title';
+                  }
+                  return null;
+                },
               ),
-              TextField(
+              TextFormField(
                 controller: _descriptionController,
                 decoration: InputDecoration(labelText: 'Description'),
               ),

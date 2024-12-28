@@ -15,6 +15,12 @@ class LoginUsecase implements UseCase<Login?, LoginParams> {
 
   @override
   Future<Either<Failure, Login?>> call(LoginParams params) async {
+    if (params.requestModel.username?.isEmpty ?? true) {
+      return Left(GeneralFailure(message: 'Username cannot be empty'));
+    }
+    if (params.requestModel.password?.isEmpty ?? true) {
+      return Left(GeneralFailure(message: 'Password cannot be empty'));
+    }
     return await repository.login(
       requestModel: params.requestModel,
     );

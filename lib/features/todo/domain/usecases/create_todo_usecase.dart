@@ -15,9 +15,17 @@ class CreateTodoUsecase implements UseCase<Todo?, CreateTodoParams> {
 
   @override
   Future<Either<Failure, Todo?>> call(CreateTodoParams params) async {
+    if (params.todo.title?.isEmpty ?? true) {
+      return Left(GeneralFailure(message: 'Title cannot be empty'));
+    }
+    if (params.todo.dueDate == null) {
+      return Left(GeneralFailure(message: 'Due date cannot be empty'));
+    }
+    if (params.todo.status == null) {
+      return Left(GeneralFailure(message: 'Status cannot be empty'));
+    }
     return await repository.createTodo(todo: params.todo);
   }
-
 }
 
 class CreateTodoParams extends Equatable {

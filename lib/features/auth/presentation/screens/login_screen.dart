@@ -111,6 +111,13 @@ class __LoginScaffoldState extends State<_LoginScaffold>
                     TextFormField(
                       controller: _usernameController,
                       decoration: InputDecoration(labelText: 'Username'),
+                      autovalidateMode: AutovalidateMode.onUserInteraction,
+                      validator: (value) {
+                        if (value == null || value.isEmpty) {
+                          return 'Please enter your username';
+                        }
+                        return null;
+                      },
                     ),
                     SizedBox(height: 20),
                     TextFormField(
@@ -129,6 +136,13 @@ class __LoginScaffoldState extends State<_LoginScaffold>
                         ),
                       ),
                       obscureText: isObscure,
+                      autovalidateMode: AutovalidateMode.onUserInteraction,
+                      validator: (value) {
+                        if (value == null || value.isEmpty) {
+                          return 'Please enter your password';
+                        }
+                        return null;
+                      },
                     ),
                     SizedBox(height: 20),
                     BlocConsumer<LoginBloc, LoginState>(
