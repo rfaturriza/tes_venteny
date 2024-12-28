@@ -1,5 +1,6 @@
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:tes_venteny/features/todo/data/models/todo_remote_model.dart';
+import 'package:timezone/timezone.dart' as tz;
 
 import '../../data/models/todo_local_model.dart';
 
@@ -24,7 +25,9 @@ class Todo with _$Todo {
       id: id,
       title: title,
       description: description,
-      dueDate: dueDate?.toIso8601String(),
+      dueDate: dueDate == null
+          ? null
+          : tz.TZDateTime.from(dueDate!, tz.local).toIso8601String(),
       status: status.toString().split('.').last,
     );
   }
@@ -34,7 +37,9 @@ class Todo with _$Todo {
       id: id,
       title: title,
       description: description,
-      dueDate: dueDate?.toIso8601String(),
+      dueDate: dueDate == null
+          ? null
+          : tz.TZDateTime.from(dueDate!, tz.local).toIso8601String(),
       status: status.toString().split('.').last,
     );
   }

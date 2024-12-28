@@ -1,5 +1,6 @@
 import 'package:dartz/dartz.dart';
 import 'package:equatable/equatable.dart';
+import 'package:flutter/foundation.dart';
 import 'package:injectable/injectable.dart';
 import 'package:tes_venteny/core/utils/extension/dartz_ext.dart';
 
@@ -32,12 +33,22 @@ class CreateTodoUsecase implements UseCase<Todo?, CreateTodoParams> {
     if (result.isRight()) {
       final todo = result.asRight();
       if (todo.id == null || todo.dueDate == null) return result;
+
+      final dateNow = DateTime.now();
+      final dueDate = params.todo.dueDate!;
+      final isExpired = dueDate.isBefore(dateNow);
+      final isLessThan5Minutes = dueDate.difference(dateNow).inMinutes < 5;
+      if (isExpired || isLessThan5Minutes) {
+        debugPrint('Skip notification');
+        return result;
+      }
       await localNotification.schedule(
         id: todo.id!,
-        scheduledDate: todo.dueDate!,
+        scheduledDate: dueDate.subtract(const Duration(minutes: 5)),
         title: 'Reminder Todo',
         body: 'Don\'t forget to do ${todo.title}',
       );
+      debugPrint('Created notification');
     }
 
     return result;

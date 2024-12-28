@@ -4,6 +4,7 @@ import 'package:tes_venteny/core/utils/extension/context_ext.dart';
 import 'package:tes_venteny/core/utils/extension/dartz_ext.dart';
 import 'package:tes_venteny/core/utils/extension/extension.dart';
 import 'package:tes_venteny/core/utils/extension/string_ext.dart';
+import 'package:tes_venteny/core/utils/local_notification.dart';
 import 'package:tes_venteny/features/todo/domain/entities/todo.dart';
 import 'package:tes_venteny/features/todo/presentation/blocs/todo_form/todo_form_bloc.dart';
 
@@ -140,6 +141,20 @@ class TodosScaffold extends StatelessWidget {
         appBar: AppBar(
           title: Text('Todos'),
           actions: [
+            // schedule notification
+            IconButton(
+              icon: Icon(Icons.notifications),
+              onPressed: () {
+                final scheduledDate = DateTime.now().add( const Duration(seconds: 5));
+
+                getIt<LocalNotification>().schedule(
+                  id: 0,
+                  scheduledDate: scheduledDate,
+                  title: 'Reminder Todo',
+                  body: 'Don\'t forget to do your todo',
+                );
+              },
+            ),
             IconButton(
               icon: Icon(Icons.refresh),
               onPressed: () {
@@ -411,7 +426,14 @@ class _FormTodoBottomSheetModalState extends State<_FormTodoBottomSheetModal> {
                     onPressed: () async {
                       final selectedDate = await showDatePicker(
                         context: context,
-                        initialDate: _dueDateController.text.toDateTime(),
+                        initialDate: (){
+                          final currentState = _dueDateController.text.toDateTime();
+                          if(currentState.isBefore(DateTime.now())){
+                            return DateTime.now();
+                          } else {
+                            return currentState;
+                          }
+                        }(),
                         firstDate: DateTime.now(),
                         lastDate: DateTime.now().add(Duration(days: 365)),
                       );
@@ -432,7 +454,10 @@ class _FormTodoBottomSheetModalState extends State<_FormTodoBottomSheetModal> {
                     onPressed: () async {
                       final selectedTime = await showTimePicker(
                         context: context,
-                        initialTime: TimeOfDay.now(),
+                        initialTime: (){
+                          final currentState = _dueDateController.text.toDateTime();
+                          return TimeOfDay.fromDateTime(currentState);
+                        }(),
                       );
                       if (selectedTime != null) {
                         final current = _dueDateController.text.toDateTime();
@@ -488,12 +513,16 @@ class _FormTodoBottomSheetModalState extends State<_FormTodoBottomSheetModal> {
                 ],
               ),
               BlocConsumer<TodoFormBloc, TodoFormState>(
+                listenWhen: (previous, current) {
+                  return previous.isSubmitting != current.isSubmitting ||
+                      previous.result != current.result;
+                },
                 listener: (context, state) {
-                  if (state.result?.isRight() == true) {
+                  if (state.result?.isRight() == true && !state.isSubmitting) {
                     context.read<TodoBloc>().add(TodoEvent.getTodos());
                     Navigator.pop(context);
                   }
-                  if (state.result?.isLeft() == true) {
+                  if (state.result?.isLeft() == true && !state.isSubmitting) {
                     context.showErrorToast(
                       state.result?.asLeft().message ?? '',
                     );

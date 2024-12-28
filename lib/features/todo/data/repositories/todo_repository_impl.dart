@@ -44,7 +44,7 @@ class TodoRepositoryImpl implements TodoRepository {
             localResult.asRight().toEntity().toRemoteModel().toJson()),
       );
       await _localDataSource.saveOutbox(outboxModel);
-      return right(todo);
+      return right(localResult.asRight().toEntity());
     }
 
     final remoteResult = await _remoteDataSource.createTodo(
@@ -55,7 +55,7 @@ class TodoRepositoryImpl implements TodoRepository {
       return left(remoteResult.asLeft());
     }
 
-    return right(todo);
+    return right(remoteResult.asRight().toEntity());
   }
 
   @override
@@ -207,7 +207,7 @@ class TodoRepositoryImpl implements TodoRepository {
     }
 
     final unsyncedTodos = await _localDataSource.getUnsyncedTodos();
-    for (final todo in unsyncedTodos. asRight()) {
+    for (final todo in unsyncedTodos.asRight()) {
       try {
         final todoModel = TodoRemoteModel.fromJson(jsonDecode(todo.payload!));
         if (todoModel.id == null) {

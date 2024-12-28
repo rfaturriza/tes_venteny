@@ -1,8 +1,11 @@
 import 'dart:developer';
 
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
+import 'package:flutter_timezone/flutter_timezone.dart';
 import 'package:injectable/injectable.dart';
 import 'package:timezone/timezone.dart' as tz;
+import 'package:timezone/data/latest.dart' as tz;
+import 'package:permission_handler/permission_handler.dart';
 
 import '../../shared/domain/entities/pair.dart';
 
@@ -11,6 +14,13 @@ class LocalNotification {
   final _flutterLocalNotificationsPlugin = FlutterLocalNotificationsPlugin();
 
   Future<void> init() async {
+    // Get device timezone
+    final String timeZoneName = await FlutterTimezone.getLocalTimezone();
+
+    // Initialize timezone
+    tz.initializeTimeZones();
+    tz.setLocalLocation(tz.getLocation(timeZoneName));
+
     void onDidReceiveNotificationResponse(
       NotificationResponse notificationResponse,
     ) async {
@@ -21,7 +31,7 @@ class LocalNotification {
     }
 
     const initSettingsAndroid = AndroidInitializationSettings(
-      'ic_notification',
+      '@mipmap/ic_launcher', // Temporarily use app icon instead
     );
     final initSettingsDarwin = DarwinInitializationSettings();
 
@@ -34,6 +44,11 @@ class LocalNotification {
       initializationSettings,
       onDidReceiveNotificationResponse: onDidReceiveNotificationResponse,
     );
+    // request permission
+    final status = await Permission.notification.status;
+    if (status.isDenied) {
+      await Permission.notification.request();
+    }
   }
 
   Future<void> show({
@@ -76,11 +91,10 @@ class LocalNotification {
     Pair<String, String>? channel,
   }) async {
     final androidPlatformChannelSpecifics = AndroidNotificationDetails(
-      channel?.first ?? 'high_importance_channel',
-      channel?.second ?? 'High Importance Notifications',
+      channel?.first ?? 'reminder_channel',
+      channel?.second ?? 'Reminder Channel',
       importance: Importance.max,
       priority: Priority.high,
-      showWhen: false,
     );
     const iosPlatformChannelSpecifics = DarwinNotificationDetails(
       presentAlert: true,
@@ -91,18 +105,21 @@ class LocalNotification {
       android: androidPlatformChannelSpecifics,
       iOS: iosPlatformChannelSpecifics,
     );
+
+    final tzDateTime = tz.TZDateTime.from(
+      scheduledDate,
+      tz.local,
+    );
     await _flutterLocalNotificationsPlugin.zonedSchedule(
       id,
       title,
       body,
-      tz.TZDateTime.from(
-        scheduledDate,
-        tz.local,
-      ),
+      tzDateTime,
       platformChannelSpecifics,
       uiLocalNotificationDateInterpretation:
           UILocalNotificationDateInterpretation.absoluteTime,
       payload: payload,
+      matchDateTimeComponents: DateTimeComponents.dateAndTime,
       androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle,
     );
   }
